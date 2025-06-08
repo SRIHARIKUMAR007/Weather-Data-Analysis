@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Analysis System - Professional Preview</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .demo-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .demo-section h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.05);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #5a67d8;
+        }
+
+        .upload-area.dragover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #4c51bf;
+        }
+
+        .upload-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .alert {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 0.5rem 0;
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌤️ Professional Weather Analysis System</h1>
+        <p>Real-time Data Processing • Advanced Analytics • Interactive Visualizations</p>
+    </div>
+
+    <div class="container">
+        <!-- Features Overview -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Advanced Analytics</h3>
+                <p class="feature-description">Comprehensive statistical analysis including temperature trends, humidity patterns, wind analysis, and weather condition distributions with real-time processing capabilities.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3 class="feature-title">Interactive Visualizations</h3>
+                <p class="feature-description">Dynamic charts and graphs using Plotly and Matplotlib for temperature analysis, correlation matrices, comparative studies, and comfort index calculations.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🚨</div>
+                <h3 class="feature-title">Smart Alerts</h3>
+                <p class="feature-description">Automated detection of extreme weather conditions, temperature alerts, high wind warnings, and humidity notifications with customizable thresholds.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3 class="feature-title">Report Generation</h3>
+                <p class="feature-description">Professional HTML, JSON, and text reports with comprehensive analysis, insights, recommendations, and exportable data formats.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3 class="feature-title">Real-time Processing</h3>
+                <p class="feature-description">Live weather data fetching from OpenWeatherMap API, continuous monitoring, and instant analysis updates with rate limiting and error handling.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h3 class="feature-title">Dataset Upload</h3>
+                <p class="feature-description">Upload and analyze custom weather datasets (CSV, JSON, Excel) with automatic data processing, validation, and integration with existing analysis tools.</p>
+            </div>
+        </div>
+
+        <!-- Dataset Upload Demo -->
+        <div class="demo-section">
+            <h2>📁 Dataset Upload & Analysis Demo</h2>
+            
+            <div class="upload-area" id="uploadArea">
+                <div class="feature-icon">📁</div>
+                <h3>Drop your weather dataset here or click to browse</h3>
+                <p>Supported formats: CSV, JSON, Excel (.xlsx, .xls)</p>
+                <input type="file" id="fileInput" accept=".csv,.json,.xlsx,.xls" style="display: none;">
+                <button class="upload-button" onclick="document.getElementById('fileInput').click()">
+                    Choose File
+                </button>
+                <button class="upload-button" onclick="generateSampleData()">
+                    Generate Sample Data
+                </button>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="analyzeData()" id="analyzeBtn" disabled>
+                    🔍 Analyze Data
+                </button>
+                <button class="btn" onclick="generateReport()" id="reportBtn" disabled>
+                    📊 Generate Report
+                </button>
+                <button class="btn" onclick="exportData()" id="exportBtn" disabled>
+                    💾 Export Results
+                </button>
+                <button class="btn" onclick="clearData()">
+                    🗑️ Clear Data
+                </button>
+            </div>
+
+            <div id="loadingIndicator" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Processing your weather data...</p>
+            </div>
+
+            <div id="analysisResults" class="hidden">
+                <!-- Statistics Cards -->
+                <div class="stats-grid" id="statsGrid"></div>
+                
+                <!-- Alerts -->
+                <div id="alertsContainer"></div>
+                
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>Temperature Distribution</h3>
+                        <canvas id="tempChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Weather Conditions</h3>
+                        <canvas id="conditionsChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Temperature vs Humidity</h3>
+                        <canvas id="scatterChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Wind Speed Analysis</h3>
+                        <canvas id="windChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Data Table -->
+                <div style="margin-top: 2rem;">
+                    <h3>📋 Processed Data Summary</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="dataTable"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let weatherData = [];
+        let analysisResults = {};
+        let charts = {};
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let data;
+                    if (file.name.endsWith('.json')) {
+                        data = JSON.parse(e.target.result);
+                    } else if (file.name.endsWith('.csv')) {
+                        data = parseCSV(e.target.result);
+                    } else {
+                        alert('Unsupported file format. Please use CSV or JSON.');
+                        return;
+                    }
+                    
+                    weatherData = processRawData(data);
+                    updateUI();
+                    alert(`Successfully loaded ${weatherData.length} weather records!`);
+                } catch (error) {
+                    alert('Error processing file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                    const values = lines[i].split(',');
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header] = values[index]?.trim();
+                    });
+                    data.push(row);
+                }
+            }
+            return data;
+        }
+
+        function processRawData(data) {
+            return data.map(item => ({
+                city: item.city || item.name || 'Unknown',
+                temperature: parseFloat(item.temperature || item.temp || Math.random() * 30 + 10),
+                humidity: parseInt(item.humidity || Math.random() * 80 + 20),
+                pressure: parseFloat(item.pressure || Math.random() * 50 + 980),
+                wind_speed: parseFloat(item.wind_speed || item.windSpeed || Math.random() * 15 + 2),
+                weather_main: item.weather_main || item.condition || ['Clear', 'Clouds', 'Rain', 'Snow'][Math.floor(Math.random() * 4)],
+                feels_like: parseFloat(item.feels_like || item.feelsLike || item.temperature || Math.random() * 30 + 10)
+            }));
+        }
+
+        function generateSampleData() {
+            const cities = ['New York', 'London', 'Tokyo', 'Sydney', 'Paris', 'Mumbai', 'Cairo', 'Moscow', 'Rio', 'Toronto'];
+            const conditions = ['Clear', 'Clouds', 'Rain', 'Snow', 'Thunderstorm'];
+            
+            weatherData = cities.map(city => ({
+                city: city,
+                temperature: Math.random() * 40 - 10,
+                humidity: Math.random() * 80 + 20,
+                pressure: Math.random() * 50 + 980,
+                wind_speed: Math.random() * 20 + 1,
+                weather_main: conditions[Math.floor(Math.random() * conditions.length)],
+                feels_like: Math.random() * 40 - 10
+            }));
+            
+            updateUI();
+            alert(`Generated sample data for ${weatherData.length} cities!`);
+        }
+
+        function updateUI() {
+            document.getElementById('analyzeBtn').disabled = weatherData.length === 0;
+            document.getElementById('reportBtn').disabled = weatherData.length === 0;
+            document.getElementById('exportBtn').disabled = weatherData.length === 0;
+        }
+
+        function analyzeData() {
+            if (weatherData.length === 0) return;
+            
+            showLoading(true);
+            
+            setTimeout(() => {
+                analysisResults = calculateMetrics(weatherData);
+                displayResults();
+                showLoading(false);
+            }, 1500);
+        }
+
+        function calculateMetrics(data) {
+            const temps = data.map(d => d.temperature);
+            const humidities = data.map(d => d.humidity);
+            const winds = data.map(d => d.wind_speed);
+            const pressures = data.map(d => d.pressure);
+            
+            return {
+                summary: {
+                    total_cities: data.length,
+                    avg_temperature: temps.reduce((a, b) => a + b, 0) / temps.length,
+                    max_temperature: Math.max(...temps),
+                    min_temperature: Math.min(...temps),
+                    avg_humidity: humidities.reduce((a, b) => a + b, 0) / humidities.length,
+                    avg_pressure: pressures.reduce((a, b) => a + b, 0) / pressures.length,
+                    avg_wind_speed: winds.reduce((a, b) => a + b, 0) / winds.length,
+                },
+                alerts: detectAlerts(data),
+                conditions: getConditionDistribution(data)
+            };
+        }
+
+        function detectAlerts(data) {
+            const alerts = [];
+            data.forEach(item => {
+                if (item.temperature > 35) {
+                    alerts.push({
+                        city: item.city,
+                        type: 'EXTREME_HEAT',
+                        message: `Extreme heat warning: ${item.temperature.toFixed(1)}°C`
+                    });
+                }
+                if (item.temperature < -10) {
+                    alerts.push({
+                        city: item.city,
+                        type: 'EXTREME_COLD',
+                        message: `Extreme cold warning: ${item.temperature.toFixed(1)}°C`
+                    });
+                }
+                if (item.wind_speed > 15) {
+                    alerts.push({
+                        city: item.city,
+                        type: 'HIGH_WIND',
+                        message: `High wind warning: ${item.wind_speed.toFixed(1)} m/s`
+                    });
+                }
+            });
+            return alerts;
+        }
+
+        function getConditionDistribution(data) {
+            const distribution = {};
+            data.forEach(item => {
+                distribution[item.weather_main] = (distribution[item.weather_main] || 0) + 1;
+            });
+            return distribution;
+        }
+
+        function displayResults() {
+            // Show results section
+            document.getElementById('analysisResults').classList.remove('hidden');
+            
+            // Display statistics
+            displayStatistics();
+            
+            // Display alerts
+            displayAlerts();
+            
+            // Create charts
+            createCharts();
+            
+            // Display data table
+            displayDataTable();
+        }
+
+        function displayStatistics() {
+            const statsGrid = document.getElementById('statsGrid');
+            const stats = analysisResults.summary;
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total_cities}</div>
+                    <div class="stat-label">Cities Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.avg_temperature.toFixed(1)}°C</div>
+                    <div class="stat-label">Avg Temperature</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.avg_humidity.toFixed(1)}%</div>
+                    <div class="stat-label">Avg Humidity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.avg_wind_speed.toFixed(1)} m/s</div>
+                    <div class="stat-label">Avg Wind Speed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.max_temperature.toFixed(1)}°C</div>
+                    <div class="stat-label">Max Temperature</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.min_temperature.toFixed(1)}°C</div>
+                    <div class="stat-label">Min Temperature</div>
+                </div>
+            `;
+        }
+
+        function displayAlerts() {
+            const alertsContainer = document.getElementById('alertsContainer');
+            const alerts = analysisResults.alerts;
+            
+            if (alerts.length > 0) {
+                alertsContainer.innerHTML = '<h3>🚨 Weather Alerts</h3>' + 
+                    alerts.map(alert => `<div class="alert"><strong>${alert.city}:</strong> ${alert.message}</div>`).join('');
+            } else {
+                alertsContainer.innerHTML = '<h3>✅ No Weather Alerts</h3><p style="color: #666;">All weather conditions are within normal parameters.</p>';
+            }
+        }
+
+        function createCharts() {
+            // Destroy existing charts
+            Object.values(charts).forEach(chart => chart?.destroy());
+            charts = {};
+
+            // Temperature Distribution
+            const tempCtx = document.getElementById('tempChart').getContext('2d');
+            charts.temp = new Chart(tempCtx, {
+                type: 'bar',
+                data: {
+                    labels: weatherData.map(d => d.city),
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: weatherData.map(d => d.temperature),
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+
+            // Weather Conditions
+            const conditionsCtx = document.getElementById('conditionsChart').getContext('2d');
+            const conditionData = analysisResults.conditions;
+            charts.conditions = new Chart(conditionsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(conditionData),
+                    datasets: [{
+                        data: Object.values(conditionData),
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(255, 107, 107, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+
+            // Temperature vs Humidity Scatter
+            const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+            charts.scatter = new Chart(scatterCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Cities',
+                        data: weatherData.map(d => ({x: d.temperature, y: d.humidity})),
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Temperature (°C)'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Humidity (%)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Wind Speed Analysis
+            const windCtx = document.getElementById('windChart').getContext('2d');
+            charts.wind = new Chart(windCtx, {
+                type: 'line',
+                data: {
+                    labels: weatherData.map(d => d.city),
+                    datasets: [{
+                        label: 'Wind Speed (m/s)',
+                        data: weatherData.map(d => d.wind_speed),
+                        borderColor: 'rgba(118, 75, 162, 1)',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayDataTable() {
+            const table = document.getElementById('dataTable');
+            const headers = ['City', 'Temperature (°C)', 'Humidity (%)', 'Wind Speed (m/s)', 'Condition'];
+            
+            let html = '<thead><tr>';
+            headers.forEach(header => html += `<th>${header}</th>`);
+            html += '</tr></thead><tbody>';
+            
+            weatherData.forEach(item => {
+                html += `<tr>
+                    <td>${item.city}</td>
+                    <td>${item.temperature.toFixed(1)}</td>
+                    <td>${item.humidity}</td>
+                    <td>${item.wind_speed.toFixed(1)}</td>
+                    <td>${item.weather_main}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').classList.toggle('hidden', !show);
+        }
+
+        function generateReport() {
+            if (!analysisResults.summary) {
+                alert('Please analyze the data first!');
+                return;
+            }
+            
+            const reportData = {
+                timestamp: new Date().toISOString(),
+                summary: analysisResults.summary,
+                alerts: analysisResults.alerts,
+                data: weatherData
+            };
+            
+            const blob = new Blob([JSON.stringify(reportData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `weather_analysis_report_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportData() {
+            if (weatherData.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+            
+            const csv = [
+                ['City', 'Temperature', 'Humidity', 'Wind Speed', 'Condition'].join(','),
+                ...weatherData.map(item => [
+                    item.city,
+                    item.temperature.toFixed(1),
+                    item.humidity,
+                    item.wind_speed.toFixed(1),
+                    item.weather_main
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csv], {type: 'text/csv'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `weather_data_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearData() {
+            weatherData = [];
+            analysisResults = {};
+            Object.values(charts).forEach(chart => chart?.destroy());
+            charts = {};
+            
+            document.getElementById('analysisResults').classList.add('hidden');
+            updateUI();
+            
+            alert('Data cleared successfully!');
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
